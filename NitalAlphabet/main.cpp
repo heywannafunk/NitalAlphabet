@@ -224,71 +224,63 @@ map<char,string> make_graph() {
 	return graph;
 }
 
-void dfs_visit(map<char, string> & g, char v, vector<char> & black) {
-	if (g.find(v) != g.end()) {
-		for (auto c : g.find(v)->second) {
-			if (find(black.begin(), black.end(), c) == black.end())
-			dfs_visit(g, c, black);
+void dfs_visit(map<char, string> & g, char v, string & res) {
+	
+	g[v][0] = '1'; //1 - gray
+
+	for (int i = 1; i < g[v].size(); i++)
+	{
+		if (g[g[v][i]][0] == '1') { //cycle
+			res = "-";
+			return;
 		}
+
+		if (g[g[v][i]][0] == '0')
+			dfs_visit(g, g[v][i], res);
 	}
-	black.push_back(v);
+
+	g[v][0] = '2'; //2 - black
+	if (res != "-")
+		res = v + res;
 }
 
-void dfs(map<char, string>& g, vector<char> sources, vector<char>& black) {
-	
-	for (char src : sources) 
+void dfs(map<char, string>& g, string & res) {
+	for (pair<char, string> v : g)
 	{
-		dfs_visit(g, src, black);
-	}
+		v.second[0] = '0'; //0 - white
+	};
+
+	for (pair<char, string> v : g)
+	{
+		if (v.second[0] == '0')
+			dfs_visit(g, v.first, res);
+	};
 }
 
 int main() {
 	setlocale(LC_ALL,"");
 
-	set<char> notsources;
-	set<char> vertices;
-
 	map<char, string> graph = make_graph();
 
+	/*
 	for (pair<char, string> x : graph)
 	{
 		cout << x.first << ": " << x.second << endl;
 	}
+	*/
 
+	string result;
 
-	vector<char> black;
-	vector<char> sources;
-
-	set_difference(vertices.begin(), vertices.end(), notsources.begin(), notsources.end(), std::inserter(sources, sources.begin()));
-
-	//sources.push_back('w');
-	//sources.push_back('u');
-
-	dfs(graph, sources, black);
+	dfs(graph, result);
 
 	/*
-	reverse(black.begin(), black.end());
-
-	if (black.size() < vertices.size()) 
+	for (pair<char, string> x : graph)
 	{
-		for (char vertex : vertices) 
-		{
-			if (find(black.begin(), black.end(), vertex) == black.end())
-				black.push_back(vertex);
-		}
-	}*/
-
-	/*
-	for (char c : vertices) 
-	{
-		cout << c << endl;
-	}
-	cout << endl;
-	for (char c : notsources)
-	{
-		cout << c << endl;
+		cout << x.first << ": " << x.second << endl;
 	}
 	*/
+
+	cout << result;
 
 	return 0;
  }
